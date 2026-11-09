@@ -1,0 +1,55 @@
+@import 'tailwindcss';
+
+/* ISLAAH palette: the emerald-and-gold dark theme, one token per colour. */
+@theme {
+  --color-ink: #0a0f0d;        /* deepest background, footer, inputs */
+  --color-night: #0d1310;      /* page background */
+  --color-panel: #121c17;      /* cards and panels */
+  --color-panel-2: #141f19;    /* raised controls */
+  --color-forest: #1b4332;     /* primary green surfaces */
+  --color-moss: #2d6a4f;       /* borders, waveform idle */
+  --color-gold: #d4af37;       /* accent */
+  --color-gold-deep: #c5a028;  /* accent hover */
+  --color-sage: #a3b18a;       /* muted text */
+  --color-mist: #c8d6ce;       /* body text */
+  --color-paper: #e6ede8;      /* default text */
+  --color-snow: #f4f6f4;       /* headings */
+  --color-exit: #b7094c;       /* quick exit */
+  --color-exit-deep: #890337;
+
+  /* System serif: zero font download on slow networks. */
+  --font-serif: Georgia, 'Iowan Old Style', 'Times New Roman', serif;
+}
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 9rem; /* clear the two sticky bars */
+  background: var(--color-night);
+}
+
+body {
+  margin: 0;
+  background: var(--color-night);
+  color: var(--color-paper);
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-gold);
+  outline-offset: 2px;
+}
+
+.dot-grid {
+  background-image: radial-gradient(var(--color-gold) 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+
+.no-scrollbar { scrollbar-width: none; }
+.no-scrollbar::-webkit-scrollbar { display: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
