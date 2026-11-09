@@ -12,5 +12,5 @@ export const CONTACT = {
   /** Encrypted email for story contributors, e.g. 'stories@proton.me'. */
   storiesEmail: '',
   /** General / press email, e.g. 'hello@islaah.co.ke'. */
-  generalEmail: '',
+  generalEmail: 'info@islaah.co.ke',
 };

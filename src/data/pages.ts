@@ -125,7 +125,7 @@ const CONTACT_PAGE: Partial<Record<Lang, ContactContent>> = {
     channelsIntro: 'Use an encrypted channel if you can. Start with a short message; you do not need to give your name.',
     signalLabel: 'Signal (encrypted)',
     storiesEmailLabel: 'Encrypted email for stories',
-    generalEmailLabel: 'Other enquiries and partners',
+    generalEmailLabel: 'Email us',
     noChannels: 'Secure contact details will be published here soon.',
     safetyTitle: 'Before you contact us',
     safety: [
@@ -157,7 +157,7 @@ const CONTACT_PAGE: Partial<Record<Lang, ContactContent>> = {
     channelsIntro: 'Isticmaal kanaal sir ah haddii aad awooddo. Ku bilow farriin gaaban; uma baahnid inaad magacaaga bixiso.',
     signalLabel: 'Signal (sir ah)',
     storiesEmailLabel: 'Iimayl sir ah oo sheekooyinka loogu talagalay',
-    generalEmailLabel: 'Su’aalaha kale iyo la-hawlgalayaasha',
+    generalEmailLabel: 'Noo soo dir iimayl',
     noChannels: 'Faahfaahinta xidhiidhka ammaanka ah halkan ayaa lagu daabici doonaa dhawaan.',
     safetyTitle: 'Ka hor intaadan nala soo xidhiidhin',
     safety: [
