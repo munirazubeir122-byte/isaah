@@ -1,0 +1,20 @@
+# Security headers for Cloudflare Pages (applied to every page and file).
+#
+# - Content-Security-Policy: the site may only load its own files, so no
+#   third-party script, tracker or font can ever be slipped in.
+# - Referrer-Policy: other sites (including Google after Quick exit) are not
+#   told that the visitor came from here.
+# - Permissions-Policy: no camera, microphone, location or ad-tracking APIs.
+/*
+  Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; media-src 'self'; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'
+  Referrer-Policy: no-referrer
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: DENY
+  Permissions-Policy: camera=(), microphone=(), geolocation=(), interest-cohort=(), browsing-topics=()
+  Cross-Origin-Opener-Policy: same-origin
+
+# Audio and images never change under the same name, so let browsers keep them.
+/audio/*
+  Cache-Control: public, max-age=604800
+/images/*
+  Cache-Control: public, max-age=604800
