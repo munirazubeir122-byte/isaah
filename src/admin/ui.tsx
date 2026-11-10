@@ -1,4 +1,4 @@
-import type { ButtonHTMLAttributes, ReactNode } from 'react';
+import { useState, type ButtonHTMLAttributes, type ReactNode } from 'react';
 
 export const inputCls =
   'w-full rounded-lg border border-moss bg-ink px-3 py-2 text-sm text-paper placeholder:text-sage/60 focus:border-gold focus:outline-none disabled:opacity-60';
@@ -69,6 +69,54 @@ export function PageTitle({ children, sub }: { children: ReactNode; sub?: ReactN
       {sub && <p className="mt-2 max-w-3xl text-sm text-mist">{sub}</p>}
     </div>
   );
+}
+
+/** A password box with a Show/Hide button, so people can check what they typed or what the browser filled in. */
+export function PasswordInput({
+  value,
+  onChange,
+  autoComplete,
+  minLength,
+}: {
+  value: string;
+  onChange: (v: string) => void;
+  autoComplete: 'current-password' | 'new-password';
+  minLength?: number;
+}) {
+  const [show, setShow] = useState(false);
+  return (
+    <div className="relative">
+      <input
+        className={`${inputCls} pr-16`}
+        type={show ? 'text' : 'password'}
+        autoComplete={autoComplete}
+        autoCapitalize="off"
+        autoCorrect="off"
+        spellCheck={false}
+        required
+        minLength={minLength}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+      />
+      <button
+        type="button"
+        onClick={() => setShow(!show)}
+        aria-pressed={show}
+        className="absolute inset-y-0 right-2 my-auto h-7 rounded px-2 text-xs text-sage hover:text-snow"
+      >
+        {show ? 'Hide' : 'Show'}
+      </button>
+    </div>
+  );
+}
+
+/**
+ * Tells the browser's password manager which account a new password belongs
+ * to, so it updates the saved password instead of keeping (and auto-filling)
+ * the old one.
+ */
+export function UsernameHint({ email }: { email: string }) {
+  return <input type="email" name="username" autoComplete="username" value={email} readOnly tabIndex={-1} aria-hidden className="sr-only" />;
 }
 
 /** A textarea that grows with its text. */

@@ -73,6 +73,8 @@ async function body<T>(req: Request, maxBytes = 600_000): Promise<T> {
 }
 
 const isEmail = (s: unknown): s is string => typeof s === 'string' && s.length <= 254 && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s);
+/** Emails arrive with stray spaces from phone keyboards and autofill. */
+const cleanEmail = (s: unknown): unknown => (typeof s === 'string' ? s.trim() : s);
 
 async function audit(env: Env, user: SessionUser | string, action: string, target = '') {
   const who = typeof user === 'string' ? user : user.email;
@@ -234,7 +236,8 @@ async function auth(req: Request, env: Env, action: string): Promise<Response> {
   }
 
   if (action === 'login' && req.method === 'POST') {
-    const { email, password } = await body<{ email?: string; password?: string }>(req, 2000);
+    const { email: rawEmail, password } = await body<{ email?: string; password?: string }>(req, 2000);
+    const email = cleanEmail(rawEmail);
     const user = isEmail(email)
       ? await env.DB.prepare('SELECT id, email, pw, disabled, failed, locked_until FROM users WHERE email = ?')
           .bind(email.trim())
@@ -465,7 +468,8 @@ async function admin(req: Request, env: Env, parts: string[], user: SessionUser)
       return json(results);
     }
     if (m === 'POST' && !id) {
-      const { email, name, role } = await body<{ email?: string; name?: string; role?: string }>(req, 2000);
+      const { email: rawEmail, name, role } = await body<{ email?: string; name?: string; role?: string }>(req, 2000);
+      const email = cleanEmail(rawEmail);
       if (!isEmail(email)) throw new HttpError(400, 'Enter a valid email address.');
       if (role !== 'admin' && role !== 'editor') throw new HttpError(400, 'Choose a role.');
       const exists = await env.DB.prepare('SELECT id FROM users WHERE email = ?').bind(email.trim()).first();

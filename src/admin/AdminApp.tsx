@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState, type FormEvent } from 'react';
 import { BarChart3, ExternalLink, FileText, Film, KeyRound, LogOut, Mail, Users as UsersIcon } from 'lucide-react';
 import { api, errorText, type Me } from './api';
-import { Button, Card, Field, inputCls, PageTitle, StatusLine, type Status } from './ui';
+import { Button, Card, Field, inputCls, PageTitle, PasswordInput, StatusLine, UsernameHint, type Status } from './ui';
 import { Dashboard } from './Dashboard';
 import { EpisodeEditor, EpisodeList } from './Episodes';
 import { ContactEditor, TextEditor } from './TextPages';
@@ -145,7 +145,7 @@ function LoginPage({ onDone }: { onDone: () => void }) {
     setBusy(true);
     setStatus(null);
     try {
-      await api('auth/login', { body: { email, password } });
+      await api('auth/login', { body: { email: email.trim(), password } });
       onDone();
     } catch (err) {
       setStatus({ kind: 'error', text: errorText(err) });
@@ -160,7 +160,7 @@ function LoginPage({ onDone }: { onDone: () => void }) {
           <input className={inputCls} type="email" autoComplete="username" required value={email} onChange={(e) => setEmail(e.target.value)} />
         </Field>
         <Field label="Password">
-          <input className={inputCls} type="password" autoComplete="current-password" required value={password} onChange={(e) => setPassword(e.target.value)} />
+          <PasswordInput autoComplete="current-password" value={password} onChange={setPassword} />
         </Field>
         <StatusLine status={status} />
         <Button variant="primary" type="submit" disabled={busy} className="w-full">
@@ -210,6 +210,7 @@ function InvitePage({ token, onDone }: { token: string; onDone: () => void }) {
         <StatusLine status={status ?? { kind: 'info', text: 'Checking your link…' }} />
       ) : (
         <form onSubmit={submit} className="space-y-4">
+          <UsernameHint email={info.email} />
           <p className="text-sm text-mist">
             Account: <strong className="text-snow">{info.email}</strong>
           </p>
@@ -217,10 +218,10 @@ function InvitePage({ token, onDone }: { token: string; onDone: () => void }) {
             <input className={inputCls} value={name} onChange={(e) => setName(e.target.value)} autoComplete="name" />
           </Field>
           <Field label="New password" hint="At least 12 characters. A few random words work well.">
-            <input className={inputCls} type="password" autoComplete="new-password" required minLength={12} value={pw} onChange={(e) => setPw(e.target.value)} />
+            <PasswordInput autoComplete="new-password" minLength={12} value={pw} onChange={setPw} />
           </Field>
           <Field label="Type it again">
-            <input className={inputCls} type="password" autoComplete="new-password" required value={pw2} onChange={(e) => setPw2(e.target.value)} />
+            <PasswordInput autoComplete="new-password" value={pw2} onChange={setPw2} />
           </Field>
           <StatusLine status={status} />
           <Button variant="primary" type="submit" disabled={busy} className="w-full">
@@ -255,14 +256,15 @@ function AccountPage({ me }: { me: Me }) {
       <PageTitle sub={`${me.email} · ${me.role}`}>My account</PageTitle>
       <Card title="Change password">
         <form onSubmit={submit} className="max-w-md space-y-4">
+          <UsernameHint email={me.email} />
           <Field label="Current password">
-            <input className={inputCls} type="password" autoComplete="current-password" required value={current} onChange={(e) => setCurrent(e.target.value)} />
+            <PasswordInput autoComplete="current-password" value={current} onChange={setCurrent} />
           </Field>
           <Field label="New password" hint="At least 12 characters.">
-            <input className={inputCls} type="password" autoComplete="new-password" required minLength={12} value={next} onChange={(e) => setNext(e.target.value)} />
+            <PasswordInput autoComplete="new-password" minLength={12} value={next} onChange={setNext} />
           </Field>
           <Field label="Type the new password again">
-            <input className={inputCls} type="password" autoComplete="new-password" required value={next2} onChange={(e) => setNext2(e.target.value)} />
+            <PasswordInput autoComplete="new-password" value={next2} onChange={setNext2} />
           </Field>
           <StatusLine status={status} />
           <Button variant="primary" type="submit">
