@@ -26,6 +26,8 @@ export interface AboutContent {
 export interface ContactContent {
   title: string;
   lead: string;
+  /** One line under the lead; {email} is replaced by the contact address. */
+  reachUs: string;
   whyTitle: string;
   why: string[];
   promisesTitle: string;
@@ -108,6 +110,7 @@ const ABOUT: Partial<Record<Lang, AboutContent>> = {
 const CONTACT_PAGE: Partial<Record<Lang, ContactContent>> = {
   EN: {
     title: 'Share your story',
+    reachUs: 'If you want to reach us, email us at {email}.',
     lead: 'If you have left an armed group, or someone in your family has, your story matters. Told safely, it can warn another young person before the recruiter reaches them.',
     whyTitle: 'Why your voice matters',
     why: [
@@ -140,6 +143,7 @@ const CONTACT_PAGE: Partial<Record<Lang, ContactContent>> = {
   },
   SO: {
     title: 'Wadaag sheekadaada',
+    reachUs: 'Haddii aad rabto inaad nala soo xidhiidho, iimayl noogu soo dir {email}.',
     lead: 'Haddii aad ka soo baxday koox hubaysan, ama qof qoyskaaga ka mid ah uu ka soo baxay, sheekadaadu waa muhiim. Haddii si ammaan ah loo sheego, waxay digniin u noqon kartaa dhallinyaro kale ka hor intaan qoruhu gaadhin.',
     whyTitle: 'Sababta codkaagu muhiim u yahay',
     why: [

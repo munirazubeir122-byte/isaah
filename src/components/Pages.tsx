@@ -6,13 +6,24 @@ import type { ImageKey } from '../data/images';
 import { SafeImage } from './SafeImage';
 import { ShareStoryBand } from './HomeSections';
 
-function PageHeader({ title, lead, image }: { title: string; lead: string; image: ImageKey }) {
+function PageHeader({
+  title,
+  lead,
+  image,
+  children,
+}: {
+  title: string;
+  lead: string;
+  image: ImageKey;
+  children?: React.ReactNode;
+}) {
   return (
     <header className="relative overflow-hidden border-b border-moss/30 bg-ink">
       <SafeImage image={image} priority className="absolute inset-0" overlay="bg-gradient-to-r from-ink via-ink/85 to-ink/40" />
       <div className="relative mx-auto max-w-7xl px-4 py-16 sm:px-6 md:py-24 lg:px-8">
         <h1 className="max-w-3xl font-serif text-4xl leading-tight font-extrabold text-snow md:text-5xl">{title}</h1>
         <p className="mt-6 max-w-2xl font-serif text-lg leading-relaxed text-mist md:text-xl">{lead}</p>
+        {children}
       </div>
     </header>
   );
@@ -97,7 +108,20 @@ export function ContactPage({ lang }: { lang: Lang }) {
 
   return (
     <>
-      <PageHeader title={c.title} lead={c.lead} image="scene-door" />
+      <PageHeader title={c.title} lead={c.lead} image="scene-door">
+        {CONTACT.generalEmail && (
+          <p className="mt-6 flex max-w-2xl items-start gap-3 rounded-lg border border-gold/50 bg-ink/70 p-4 text-base leading-relaxed text-paper md:text-lg">
+            <Mail className="mt-1 h-5 w-5 shrink-0 text-gold" aria-hidden />
+            <span>
+              {c.reachUs.split('{email}')[0]}
+              <a href={`mailto:${CONTACT.generalEmail}`} className="font-semibold break-all text-gold underline underline-offset-4 hover:text-snow">
+                {CONTACT.generalEmail}
+              </a>
+              {c.reachUs.split('{email}')[1]}
+            </span>
+          </p>
+        )}
+      </PageHeader>
 
       <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 md:py-20 lg:px-8">
         <section className="max-w-3xl">
