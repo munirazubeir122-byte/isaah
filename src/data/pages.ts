@@ -4,6 +4,7 @@
 // REVIEW: Munira, please check every statement about ISLAAH Media and about
 // yourself, and add your own background. Somali is a draft translation.
 import type { Lang } from '../i18n';
+import { doc } from '../content/store';
 
 export interface AboutContent {
   title: string;
@@ -44,7 +45,7 @@ export interface ContactContent {
   danger: string;
 }
 
-const ABOUT: Partial<Record<Lang, AboutContent>> = {
+export const ABOUT: Partial<Record<Lang, AboutContent>> = {
   EN: {
     title: 'About ISLAAH',
     lead: 'Islaah (الإصلاح) means reform and reconciliation. ISLAAH Media is an investigative audio-journalism platform that records the testimonies of young people who have left extremist armed groups in Kenya, Somalia, Tanzania, the DRC and Mozambique.',
@@ -107,7 +108,7 @@ const ABOUT: Partial<Record<Lang, AboutContent>> = {
   },
 };
 
-const CONTACT_PAGE: Partial<Record<Lang, ContactContent>> = {
+export const CONTACT_PAGE: Partial<Record<Lang, ContactContent>> = {
   EN: {
     title: 'Share your story',
     reachUs: 'If you want to reach us, email us at {email}.',
@@ -176,5 +177,14 @@ const CONTACT_PAGE: Partial<Record<Lang, ContactContent>> = {
   },
 };
 
-export const aboutContent = (lang: Lang): AboutContent => ABOUT[lang] ?? ABOUT.EN!;
-export const contactContent = (lang: Lang): ContactContent => CONTACT_PAGE[lang] ?? CONTACT_PAGE.EN!;
+/**
+ * Shipped text for a language, with dashboard edits laid on top. A language
+ * that was never written out starts from (edited) English.
+ */
+export function withEdits<T extends object>(prefix: string, shipped: Partial<Record<Lang, T>>, lang: Lang): T {
+  const base = shipped[lang] ?? { ...shipped.EN!, ...doc<Partial<T>>(`${prefix}:EN`) };
+  return { ...base, ...doc<Partial<T>>(`${prefix}:${lang}`) } as T;
+}
+
+export const aboutContent = (lang: Lang): AboutContent => withEdits('about', ABOUT, lang);
+export const contactContent = (lang: Lang): ContactContent => withEdits('contact', CONTACT_PAGE, lang);

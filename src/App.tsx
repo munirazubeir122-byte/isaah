@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { getEpisodes, REGIONS, type Episode, type RegionId } from './data/episodes';
 import { useAudioPlayer } from './hooks/useAudioPlayer';
-import { HTML_LANG, STRINGS, type Lang } from './i18n';
+import { HTML_LANG, getStrings, type Lang } from './i18n';
 import { SafetyBar } from './components/SafetyBar';
 import { Header, type NavTarget, type PageId, type SectionId } from './components/Header';
 import { Hero } from './components/Hero';
@@ -10,6 +10,8 @@ import { EpisodeDetail } from './components/EpisodeDetail';
 import { Interviews, Regions, ShareStoryBand } from './components/HomeSections';
 import { AboutPage, ContactPage } from './components/Pages';
 import { Footer, PrivacyModal, RecruitmentLies } from './components/Sections';
+import { hasRemote, setRemote } from './content/store';
+import type { SiteContent } from './content/types';
 
 /**
  * Routes live in the URL hash so a shared link opens the right page on any host:
@@ -41,9 +43,37 @@ export default function App() {
   const [filter, setFilter] = useState<RegionId | 'ALL'>('ALL');
   const [privacyOpen, setPrivacyOpen] = useState(false);
   const player = useAudioPlayer();
-  const t = STRINGS[lang];
+  // Bumped when content arrives from the server after the first render.
+  const [contentVersion, setContentVersion] = useState(0);
+  const t = getStrings(lang);
 
-  const episodes = useMemo(() => getEpisodes(lang), [lang]);
+  const episodes = useMemo(() => getEpisodes(lang), [lang, contentVersion]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // The Worker normally embeds the content in the page. If it is missing
+  // (e.g. the local design preview), fetch it; on failure keep shipped text.
+  useEffect(() => {
+    if (hasRemote()) return;
+    fetch('/api/content')
+      .then((r) => (r.ok ? r.json() : null))
+      .then((c: SiteContent | null) => {
+        if (c?.episodes) {
+          setRemote(c);
+          setContentVersion((v) => v + 1);
+        }
+      })
+      .catch(() => {});
+  }, []);
+
+  // Anonymous page counts: only the page name and the day are recorded. No
+  // cookie, no IP address, no identifier of any kind.
+  const routeKey = route.page === 'episode' ? `/episode/${route.id}` : route.page === 'home' ? '/' : `/${route.page}`;
+  useEffect(() => {
+    try {
+      navigator.sendBeacon?.('/api/hit', routeKey);
+    } catch {
+      /* counting is optional */
+    }
+  }, [routeKey]);
   const episode = route.page === 'episode' ? episodes.find((e) => e.id === route.id) ?? null : null;
   const regionLabel = (id: RegionId) => t[REGIONS.find((r) => r.id === id)!.labelKey];
 

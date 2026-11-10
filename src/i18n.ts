@@ -1,3 +1,5 @@
+import { doc } from './content/store';
+
 export type Lang = 'EN' | 'SO' | 'SW' | 'FR' | 'PT';
 export const LANGS: Lang[] = ['EN', 'SO', 'SW', 'FR', 'PT'];
 export const HTML_LANG: Record<Lang, string> = { EN: 'en', SO: 'so', SW: 'sw', FR: 'fr', PT: 'pt' };
@@ -350,3 +352,8 @@ export const STRINGS: Record<Lang, Strings> = {
     understood: 'Entendi',
   },
 };
+
+/** Interface text with any dashboard edits applied. */
+export function getStrings(lang: Lang): Strings {
+  return { ...STRINGS[lang], ...doc<Partial<Strings>>(`strings:${lang}`) };
+}

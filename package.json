@@ -11,7 +11,11 @@
     "images": "node scripts/prepare-images.mjs",
     "illustrations": "node scripts/make-illustrations.mjs",
     "audio": "node scripts/generate-audio.mjs",
-    "audio:edge": "node scripts/generate-audio.mjs --edge"
+    "audio:edge": "node scripts/generate-audio.mjs --edge",
+    "worker": "npm run build && wrangler dev",
+    "db:migrate:local": "wrangler d1 migrations apply islaah --local",
+    "db:migrate:remote": "wrangler d1 migrations apply islaah --remote",
+    "admin:invite": "node scripts/admin-invite.mjs"
   },
   "dependencies": {
     "lucide-react": "^1.69.0",
@@ -20,6 +24,7 @@
   },
   "devDependencies": {
     "@breezystack/lamejs": "^1.2.7",
+    "@cloudflare/workers-types": "^5.20261110.1",
     "@tailwindcss/vite": "^4.3.4",
     "@types/node": "^24.19.2",
     "@types/react": "^19.3.0",
@@ -31,7 +36,8 @@
     "sharp": "^0.35.5",
     "tailwindcss": "^4.3.4",
     "typescript": "~7.0.2",
-    "vite": "^8.3.6"
+    "vite": "^8.3.6",
+    "wrangler": "^4.159.0"
   },
   "allowScripts": {
     "msedge-tts": false

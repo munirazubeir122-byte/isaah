@@ -1,8 +1,8 @@
 import { AlertTriangle, Lock, Mail, MessageSquare, PenLine, ShieldCheck } from 'lucide-react';
-import { CONTACT } from '../data/contact';
+import { contactSettings } from '../data/contact';
 import { aboutContent, contactContent } from '../data/pages';
 import type { Lang } from '../i18n';
-import type { ImageKey } from '../data/images';
+import type { ImageRef } from '../content/types';
 import { SafeImage } from './SafeImage';
 import { ShareStoryBand } from './HomeSections';
 
@@ -14,7 +14,7 @@ function PageHeader({
 }: {
   title: string;
   lead: string;
-  image: ImageKey;
+  image: ImageRef;
   children?: React.ReactNode;
 }) {
   return (
@@ -95,6 +95,7 @@ export function AboutPage({ lang, onContact }: { lang: Lang; onContact: () => vo
 
 export function ContactPage({ lang }: { lang: Lang }) {
   const c = contactContent(lang);
+  const CONTACT = contactSettings();
   const channels = [
     CONTACT.signal && {
       icon: MessageSquare,

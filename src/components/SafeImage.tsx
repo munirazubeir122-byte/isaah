@@ -1,7 +1,8 @@
-import { IMAGES, type ImageKey } from '../data/images';
+import { IMAGES } from '../data/images';
+import type { ImageRef } from '../content/types';
 
 interface Props {
-  image: ImageKey;
+  image: ImageRef;
   className?: string;
   /** Hero images load immediately; everything else waits until scrolled near. */
   priority?: boolean;
@@ -11,7 +12,8 @@ interface Props {
 
 /**
  * The only way the site renders a photo. It reads from the registry of
- * pre-cropped, face-free, metadata-stripped files and serves the small
+ * pre-cropped, face-free, metadata-stripped files (or a dashboard upload,
+ * which the dashboard re-encodes to strip metadata) and serves the small
  * version to phones.
  */
 export function SafeImage({
@@ -20,7 +22,7 @@ export function SafeImage({
   priority = false,
   overlay = 'bg-gradient-to-t from-ink/90 via-ink/40 to-ink/10',
 }: Props) {
-  const img = IMAGES[image];
+  const img = typeof image === 'string' ? IMAGES[image] ?? IMAGES['story-coast'] : image;
   return (
     <div className={`${className.includes('absolute') ? '' : 'relative'} overflow-hidden bg-panel ${className}`}>
       <img

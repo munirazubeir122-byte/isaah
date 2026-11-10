@@ -1,0 +1,24 @@
+// Cloudflare Worker for islaah.co.ke. Cloudflare builds and deploys this
+// automatically on every push to GitHub (npm run build, then wrangler deploy).
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "isaah",
+  "main": "worker/index.ts",
+  "compatibility_date": "2025-09-01",
+  "assets": {
+    "directory": "./dist",
+    "binding": "ASSETS",
+    // These paths go to the Worker first; everything else is a static file.
+    "run_worker_first": ["/", "/index.html", "/api/*", "/media/*"]
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "islaah",
+      "database_id": "c28b36f2-c7b1-4387-a438-175cea32493a",
+      "migrations_dir": "migrations"
+    }
+  ],
+  "kv_namespaces": [{ "binding": "MEDIA", "id": "7b90419b89064711bf7271c07ad4dc5f" }],
+  "observability": { "enabled": false }
+}

@@ -1,8 +1,8 @@
-import type { ImageKey } from './images';
 import type { Lang, Strings } from '../i18n';
-import { STORIES, type Story } from './stories';
-import { STORIES_SO } from './stories.so';
-import { AUDIO } from './audio-manifest';
+import type { Story } from './stories';
+import type { EpisodeRecord, ImageRef } from '../content/types';
+import { defaultEpisodes } from '../content/defaults';
+import { doc, remoteEpisodes } from '../content/store';
 
 export type RegionId = 'Mozambique' | 'Kenya & Somalia' | 'DRC' | 'Tanzania';
 
@@ -17,7 +17,7 @@ export interface Episode extends Story {
   region: RegionId;
   subRegion: string;
   date: string;
-  image: ImageKey;
+  image: ImageRef;
   /** Language the story text is in (falls back to EN). */
   textLang: Lang;
   /** Language the audio is in (falls back to EN). */
@@ -30,36 +30,38 @@ export interface Episode extends Story {
   wave: number[];
 }
 
-/** Everything about an episode except its text, keyed by id. */
-const META: Record<string, Pick<Episode, 'region' | 'subRegion' | 'date' | 'image'>> = {
-  'ep-01': { region: 'Mozambique', subRegion: 'Cabo Delgado', date: 'October 2025', image: 'story-coast' },
-  'ep-02': { region: 'Kenya & Somalia', subRegion: 'Nairobi / Lower Shabelle', date: 'November 2025', image: 'story-road' },
-  'ep-03': { region: 'DRC', subRegion: 'Beni forests', date: 'December 2025', image: 'story-forest' },
-  'ep-04': { region: 'Tanzania', subRegion: 'Tanga / Pangani', date: 'January 2026', image: 'story-mangroves' },
-};
-
-/** Translated story text. Languages missing here show English. */
-const TEXT: Partial<Record<Lang, Story[]>> = { EN: STORIES, SO: STORIES_SO };
-
-/** Placeholder bars, used only until the audio script has measured the file. */
+/** Placeholder bars, used only until the audio has been measured. */
 const FLAT_WAVE = Array.from({ length: 48 }, (_, i) => 35 + ((i * 37) % 50));
 
+/** Episodes as edited in the dashboard, or as shipped with the site. */
+export function episodeRecords(): EpisodeRecord[] {
+  return remoteEpisodes() ?? defaultEpisodes();
+}
+
 export function getEpisodes(lang: Lang): Episode[] {
-  return STORIES.map((base) => {
-    const textLang: Lang = TEXT[lang]?.some((s) => s.id === base.id) ? lang : 'EN';
-    const story = TEXT[textLang]!.find((s) => s.id === base.id)!;
-    const audioLang: Lang = AUDIO[lang]?.[base.id] ? lang : 'EN';
-    const audio = AUDIO[audioLang]?.[base.id];
-    return {
-      ...story,
-      ...META[base.id],
-      textLang,
-      audioLang,
-      audioSrc: audio?.src,
-      durationSec: audio?.seconds ?? 0,
-      wave: audio?.wave ?? FLAT_WAVE,
-    };
-  });
+  return episodeRecords()
+    .filter((r) => r.published && r.text.EN)
+    .sort((a, b) => a.sort - b.sort)
+    .map((r) => {
+      const textLang: Lang = r.text[lang] ? lang : 'EN';
+      const text = r.text[textLang]!;
+      const audioLang: Lang = r.audio[lang] ? lang : 'EN';
+      const audio = r.audio[audioLang];
+      return {
+        id: r.id,
+        sample: r.sample,
+        ...text,
+        region: r.region,
+        subRegion: r.subRegion,
+        date: r.date,
+        image: r.image,
+        textLang,
+        audioLang,
+        audioSrc: audio?.src,
+        durationSec: audio?.seconds ?? 0,
+        wave: audio?.wave?.length ? audio.wave : FLAT_WAVE,
+      };
+    });
 }
 
 export function minutes(ep: Episode): number {
@@ -67,7 +69,7 @@ export function minutes(ep: Episode): number {
 }
 
 /** One-line context for each region on the Regions section. */
-const REGION_INFO: Partial<Record<Lang, Record<RegionId, string>>> = {
+export const REGION_INFO: Partial<Record<Lang, Record<RegionId, string>>> = {
   EN: {
     Mozambique: 'Cabo Delgado, where an insurgency since 2017 has drawn in young men from across the coast.',
     'Kenya & Somalia': 'From Nairobi and the coast to southern Somalia, where al-Shabaab recruits across the border.',
@@ -83,12 +85,17 @@ const REGION_INFO: Partial<Record<Lang, Record<RegionId, string>>> = {
 };
 
 export function regionInfo(lang: Lang, id: RegionId): string {
-  return (REGION_INFO[lang] ?? REGION_INFO.EN!)[id];
+  return (
+    doc<Record<RegionId, string>>(`regions:${lang}`)?.[id] ||
+    REGION_INFO[lang]?.[id] ||
+    doc<Record<RegionId, string>>('regions:EN')?.[id] ||
+    REGION_INFO.EN![id]
+  );
 }
 
-type Lie = { title: string; body: string };
+export type Lie = { title: string; body: string };
 
-const LIES: Partial<Record<Lang, Lie[]>> = {
+export const LIES: Partial<Record<Lang, Lie[]>> = {
   EN: [
     {
       title: 'The false promise of wealth',
@@ -120,5 +127,5 @@ const LIES: Partial<Record<Lang, Lie[]>> = {
 };
 
 export function recruitmentLies(lang: Lang): Lie[] {
-  return LIES[lang] ?? LIES.EN!;
+  return doc<Lie[]>(`lies:${lang}`) ?? LIES[lang] ?? doc<Lie[]>('lies:EN') ?? LIES.EN!;
 }
