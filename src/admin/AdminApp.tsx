@@ -42,7 +42,7 @@ export default function AdminApp() {
   let page;
   const ep = route.match(/^\/episodes\/([a-z0-9-]+)$/);
   if (ep) page = <EpisodeEditor id={ep[1]} me={me} />;
-  else if (route === '/episodes') page = <EpisodeList />;
+  else if (route === '/episodes') page = <EpisodeList me={me} />;
   else if (route === '/text') page = <TextEditor />;
   else if (route === '/contact') page = <ContactEditor />;
   else if (route === '/users' && me.role === 'admin') page = <UsersPage me={me} />;

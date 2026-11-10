@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { ArrowDown, ArrowUp, Eye, EyeOff, Plus, Trash2, Upload } from 'lucide-react';
+import { ArrowDown, ArrowUp, Eye, EyeOff, Pencil, Plus, Trash2, Upload } from 'lucide-react';
 import { api, errorText, type Me } from './api';
 import { AutoTextarea, Button, Card, Field, inputCls, PageTitle, StatusLine, type Status } from './ui';
 import { uploadAudio, uploadImage } from './media';
@@ -27,7 +27,7 @@ const saveEpisode = (r: EpisodeRecord) => api<EpisodeRecord>(`admin/episodes/${r
 
 // ------------------------------------------------------------------ list
 
-export function EpisodeList() {
+export function EpisodeList({ me }: { me: Me }) {
   const [list, setList] = useState<EpisodeRecord[] | null>(null);
   const [status, setStatus] = useState<Status>(null);
   const reload = () =>
@@ -68,7 +68,7 @@ export function EpisodeList() {
 
   return (
     <>
-      <PageTitle sub="Hidden stories are kept but not shown on the site. Changes appear on the site as soon as you save.">Stories</PageTitle>
+      <PageTitle sub="Click Edit to change a story's text, picture or audio. Hide takes a story off the site but keeps it; Delete removes it for good. Changes appear on the site as soon as you save.">Stories</PageTitle>
       <div className="mb-4 flex flex-wrap items-center gap-3">
         <Button variant="primary" onClick={create}>
           <Plus className="h-4 w-4" aria-hidden /> New story
@@ -106,7 +106,24 @@ export function EpisodeList() {
                 {e.published ? <EyeOff className="h-4 w-4" aria-hidden /> : <Eye className="h-4 w-4" aria-hidden />}
                 {e.published ? 'Hide' : 'Publish'}
               </Button>
-              <Button onClick={() => goto(`/episodes/${e.id}`)}>Edit</Button>
+              <Button onClick={() => goto(`/episodes/${e.id}`)}>
+                <Pencil className="h-4 w-4" aria-hidden /> Edit
+              </Button>
+              {me.role === 'admin' && (
+                <Button
+                  variant="danger"
+                  aria-label={`Delete ${e.text.EN?.title || e.id}`}
+                  onClick={() => {
+                    const title = e.text.EN?.title || 'this story';
+                    if (!window.confirm(`Delete "${title}" for good?
+
+Its text cannot be recovered. To take it off the site but keep it, use "Hide" instead.`)) return;
+                    void run(() => api(`admin/episodes/${e.id}`, { method: 'DELETE' }), `"${title}" deleted.`);
+                  }}
+                >
+                  <Trash2 className="h-4 w-4" aria-hidden /> Delete
+                </Button>
+              )}
             </div>
           ))}
         </div>
